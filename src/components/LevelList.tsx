@@ -9,9 +9,10 @@ interface Props {
   levels: Level[];
   selected: string | null;
   onSelect: (num: string) => void;
+  onRename: (num: string, name: string) => void;
 }
 
-export function LevelList({ levels, selected, onSelect }: Props) {
+export function LevelList({ levels, selected, onSelect, onRename }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("num");
@@ -58,7 +59,12 @@ export function LevelList({ levels, selected, onSelect }: Props) {
             computeItemKey={(_, item) => item.num}
             itemContent={(_, item) => (
               <div className="level-item-wrap">
-                <LevelItem level={item} selected={item.num === selected} onSelect={onSelect} />
+                <LevelItem
+                  level={item}
+                  selected={item.num === selected}
+                  onSelect={onSelect}
+                  onRename={onRename}
+                />
               </div>
             )}
             overscan={400}

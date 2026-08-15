@@ -8,10 +8,11 @@ import { LevelEditor } from "./components/LevelEditor";
 import { Toast } from "./components/Toast";
 
 export default function App() {
-  const { data, filePath, toast, show, autoLoad, open, applyLevel, save, saveAs } = useSave();
+  const { data, filePath, toast, cloudNames, show, autoLoad, open, applyLevel, renameLevel, save, saveAs } =
+    useSave();
   const [selected, setSelected] = useState<string | null>(null);
 
-  const levels = useMemo(() => (data ? collectLevels(data) : []), [data]);
+  const levels = useMemo(() => (data ? collectLevels(data, cloudNames) : []), [data, cloudNames]);
   const selectedLevel = useMemo(
     () => levels.find((l) => l.num === selected) ?? null,
     [levels, selected],
@@ -42,7 +43,12 @@ export default function App() {
           <section className="card">
             <h2 className="card-title">关卡编辑器</h2>
             <div className="editor-layout">
-              <LevelList levels={levels} selected={selected} onSelect={setSelected} />
+              <LevelList
+                levels={levels}
+                selected={selected}
+                onSelect={setSelected}
+                onRename={renameLevel}
+              />
               <LevelEditor
                 key={selected ?? "empty"}
                 level={selectedLevel}

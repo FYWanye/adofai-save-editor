@@ -335,6 +335,20 @@ body.is-mac .titlebar {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: text;
+}
+.rename-input {
+  width: 100%;
+  padding: 2px 6px;
+  border: 0.5px solid var(--system-blue);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--label-primary);
+  font-family: inherit;
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-blue) 25%, transparent);
 }
 .level-num {
   font-size: var(--text-footnote);

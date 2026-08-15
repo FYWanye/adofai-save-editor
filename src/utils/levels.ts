@@ -18,8 +18,38 @@ export interface Level {
 
 const numVal = (v: unknown): number | null => (typeof v === "number" ? v : null);
 
-/** 从存档中推导关卡名称，找不到则回退为「关卡 N」（1 起） */
-function levelName(data: GameSave, num: string): string {
+/** 自定义名称在存档中的存储键 */
+export const CUSTOM_NAMES_KEY = "customLevelNames";
+
+/** 读取存档中的自定义关卡名称 */
+export function readCustomNames(data: GameSave): Record<string, string> {
+  const v = data[CUSTOM_NAMES_KEY];
+  if (!v || typeof v !== "object" || Array.isArray(v)) return {};
+  const out: Record<string, string> = {};
+  for (const [k, val] of Object.entries(v)) {
+    if (typeof val === "string" && val.trim()) out[k] = val.trim();
+  }
+  return out;
+}
+
+/** 设置自定义关卡名称（空则删除） */
+export function setCustomName(data: GameSave, num: string, name: string): GameSave {
+  const names = readCustomNames(data);
+  const trimmed = name.trim();
+  if (trimmed) names[num] = trimmed;
+  else delete names[num];
+  return { ...data, [CUSTOM_NAMES_KEY]: names };
+}
+
+/** 解析关卡名称，优先级：自定义 > 云名称 > 存档内置 > 回退「关卡 N」 */
+function resolveLevelName(
+  data: GameSave,
+  cloud: Record<string, string>,
+  num: string,
+): string {
+  const custom = readCustomNames(data);
+  if (custom[num]) return custom[num];
+  if (cloud[num]) return cloud[num];
   for (const prefix of ["levelName", "levelTitle", "name"]) {
     const v = data[prefix + num];
     if (typeof v === "string" && v.trim()) return v;
@@ -29,7 +59,10 @@ function levelName(data: GameSave, num: string): string {
 }
 
 /** 收集所有普通关卡数据 */
-export function collectLevels(data: GameSave): Level[] {
+export function collectLevels(
+  data: GameSave,
+  cloudNames: Record<string, string> = {},
+): Level[] {
   const levels: Level[] = [];
   for (const key of Object.keys(data)) {
     if (key.startsWith("percentCompletion") && !key.startsWith("coop_")) {
@@ -45,7 +78,7 @@ export function collectLevels(data: GameSave): Level[] {
       levels.push({
         num,
         numInt: parseInt(num, 10) || 0,
-        name: levelName(data, num),
+        name: resolveLevelName(data, cloudNames, num),
         progress,
         status,
         accuracy: numVal(data["bestPercentAccuracy" + num]),

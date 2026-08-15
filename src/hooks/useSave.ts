@@ -1,5 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { GameSave } from "../utils/levels";
+import { setCustomName } from "../utils/levels";
+import { fetchCloudNames, submitCloudName } from "../utils/cloudNames";
 import {
   autoDetectSave,
   openSaveDialog,
@@ -18,6 +20,14 @@ export function useSave() {
   const [data, setData] = useState<GameSave | null>(null);
   const [filePath, setFilePath] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [cloudNames, setCloudNames] = useState<Record<string, string>>({});
+
+  // 启动时拉取云名称（服务器未就绪时返回空）
+  useEffect(() => {
+    fetchCloudNames()
+      .then(setCloudNames)
+      .catch(() => {});
+  }, []);
 
   const show = useCallback((message: string, tone: ToastTone = "success") => {
     setToast({ message, tone });
@@ -58,6 +68,12 @@ export function useSave() {
     setData((prev) => (prev ? { ...prev, ...patch } : prev));
   }, []);
 
+  // 重命名关卡：写入存档自定义名称，并同步提交到服务器（框架）
+  const renameLevel = useCallback((num: string, name: string) => {
+    setData((prev) => (prev ? setCustomName(prev, num, name) : prev));
+    submitCloudName(num, name).catch(() => {});
+  }, []);
+
   const save = useCallback(async () => {
     if (!data || !filePath) {
       show("请先打开存档文件", "error");
@@ -77,5 +93,17 @@ export function useSave() {
     if (p) show(`已保存到: ${p}`, "success");
   }, [data, show]);
 
-  return { data, filePath, toast, show, autoLoad, open, applyLevel, save, saveAs };
+  return {
+    data,
+    filePath,
+    toast,
+    cloudNames,
+    show,
+    autoLoad,
+    open,
+    applyLevel,
+    renameLevel,
+    save,
+    saveAs,
+  };
 }
