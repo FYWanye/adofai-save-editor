@@ -1,0 +1,50 @@
+# electron-builder cross-platform packaging config
+appId: com.fywanye.adofai-save-editor
+productName: AdofaiSaveEditor
+copyright: Copyright (c) 2025 FYWanye
+
+# Only package files required at runtime (the reference save is excluded)
+files:
+  - src/**/*
+  - header_schinese.jpg
+  - MiSansVF.ttf
+
+directories:
+  output: dist
+
+asar: true
+
+# ===== Windows =====
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: msi
+      arch: [x64]
+  artifactName: AdofaiSaveEditor-${version}-${os}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Adofai Save Editor
+
+# ===== macOS =====
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  category: public.app-category.utilities
+  artifactName: AdofaiSaveEditor-${version}-${os}-${arch}.${ext}
+
+# ===== Linux =====
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  category: Utility
+  maintainer: FYWanye <952115875@qq.com>
+  artifactName: AdofaiSaveEditor-${version}-${os}-${arch}.${ext}

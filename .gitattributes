@@ -1,0 +1,10 @@
+# Normalize line endings: text files use LF (protects YAML/JS from Windows CRLF)
+* text=auto eol=lf
+
+# Binary files are never converted
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ttf binary
+*.icns binary
+*.ico binary

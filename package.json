@@ -5,6 +5,10 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
+    "dist": "electron-builder --publish never",
+    "dist:win": "electron-builder --win nsis msi --publish never",
+    "dist:mac": "electron-builder --mac dmg --publish never",
+    "dist:linux": "electron-builder --linux AppImage deb --publish never",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["save-editor", "game", "unlocker"],

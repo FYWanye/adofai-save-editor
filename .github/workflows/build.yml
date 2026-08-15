@@ -1,0 +1,183 @@
+name: Build & Release
+
+# Triggers:
+#   - push to main with "[release]" or "[R]" in the commit message -> bump + tag + build + release
+#   - push tag v*   -> build + release that exact version
+#   - manual run    -> always build + release, optional bump type input
+# Everyday pushes to main (e.g. GitDoc auto-commits) only sync code, no release.
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Bump type (patch / minor / major)'
+        required: false
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+# Force bash on every runner (Windows included) so scripts are portable
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  gate:
+    name: Check release marker
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+    steps:
+      - name: Check
+        id: check
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" || "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            SHOULD=true
+          elif grep -qE '\[[Rr]elease\]|\[[Rr]\]' <<< "$COMMIT_MSG"; then
+            SHOULD=true
+          else
+            SHOULD=false
+          fi
+          echo "should_release=$SHOULD" >> "$GITHUB_OUTPUT"
+
+  version:
+    name: Resolve version
+    needs: gate
+    if: needs.gate.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: resolve
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            # Manual tag push: use the tag as-is (v1.2.3 -> 1.2.3)
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            # Auto tag: patch bump from latest tag; use [major]/[minor] in
+            # the commit message to override the bump type
+            LATEST=$(git describe --tags --abbrev=0 2>/dev/null || sed -nE 's/.*"version": *"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' package.json | head -1)
+            LATEST="${LATEST#v}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST"
+            MAJOR=${MAJOR:-0}; MINOR=${MINOR:-0}; PATCH=${PATCH:-0}
+
+            BUMP="patch"
+            DISPATCH="${{ github.event.inputs.bump }}"
+            if [[ -n "$DISPATCH" ]]; then BUMP="$DISPATCH"; fi
+
+            MSG=$(git log -1 --pretty=%B)
+            if grep -q '\[major\]' <<< "$MSG"; then BUMP="major"; fi
+            if grep -q '\[minor\]' <<< "$MSG"; then BUMP="minor"; fi
+
+            case "$BUMP" in
+              major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+              minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+              *)     PATCH=$((PATCH + 1)) ;;
+            esac
+            VERSION="$MAJOR.$MINOR.$PATCH"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build (${{ matrix.os }})
+    needs: [gate, version]
+    if: needs.gate.outputs.should_release == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            args: --win nsis msi
+            artifact: dist-windows
+          - os: macos-latest
+            args: --mac dmg
+            artifact: dist-macos
+          - os: ubuntu-latest
+            args: --linux AppImage deb
+            artifact: dist-linux
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set version
+        run: npm version --no-git-tag-version "${{ needs.version.outputs.version }}"
+
+      - name: Build installers
+        env:
+          # Build unsigned binaries when no code-signing secrets are present
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder ${{ matrix.args }} --publish never
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            dist/*.exe
+            dist/*.msi
+            dist/*.dmg
+            dist/*.AppImage
+            dist/*.deb
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: [gate, version, build]
+    if: needs.gate.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create tag & release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          FILES=(artifacts/*)
+          if [[ ${#FILES[@]} -eq 0 ]]; then
+            echo "No artifacts found"
+            exit 1
+          fi
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "Release v$VERSION already exists, skipping"
+          else
+            gh release create "v$VERSION" "${FILES[@]}" --title "v$VERSION" --generate-notes
+          fi
