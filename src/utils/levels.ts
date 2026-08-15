@@ -81,14 +81,36 @@ export function matchesSearch(level: Level, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
 
+  // 状态关键词
   if (["已完成", "完成", "done", "completed"].includes(q)) return level.status === "completed";
   if (["未完成", "todo", "uncompleted", "unfinished"].includes(q)) return level.status !== "completed";
   if (["进行中", "进行", "in progress", "progress"].includes(q)) return level.status === "in_progress";
-  if (["飚速", "飙速", "boost", "boosted", "🔥", "⚡", "speed"].includes(q)) return level.boost;
 
+  // 属性存在性关键词
+  if (["精准度", "精度", "accuracy", "acc"].includes(q)) return level.accuracy != null;
+  if (["x精准度", "x精度", "xaccuracy", "xacc"].includes(q)) return level.xAccuracy != null;
+  if (["尝试", "尝试次数", "次数", "attempts", "attempt"].includes(q)) return level.attempts != null;
+  if (["教程", "教程进度", "tutorial"].includes(q)) return level.tutorial != null;
+  if (["飚速", "飙速", "倍率", "boost", "boosted", "speed", "🔥", "⚡"].includes(q)) return level.boost;
+
+  // 编号匹配
   if (q.startsWith("#")) return level.num === q.slice(1);
-  if (/^\d+$/.test(q)) return level.num === q || level.numInt === parseInt(q, 10);
 
+  // 数值匹配：编号 / 尝试 / 教程 / 精准度% / X精准度% / 飚速倍率
+  if (/^\d+(\.\d+)?$/.test(q)) {
+    const n = parseFloat(q);
+    if (Number.isInteger(n)) {
+      if (level.numInt === n) return true;
+      if (level.attempts === n) return true;
+      if (level.tutorial === n) return true;
+    }
+    if (level.accuracy != null && Math.abs(level.accuracy * 100 - n) < 0.005) return true;
+    if (level.xAccuracy != null && Math.abs(level.xAccuracy * 100 - n) < 0.005) return true;
+    if (level.speed != null && Math.abs(level.speed - n) < 0.05) return true;
+    return false;
+  }
+
+  // 名称 / 编号模糊匹配
   return level.name.toLowerCase().includes(q) || level.num.toLowerCase().includes(q);
 }
 

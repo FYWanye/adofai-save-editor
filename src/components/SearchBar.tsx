@@ -17,7 +17,7 @@ export function SearchBar({ search, onSearch, filter, onFilter, sort, onSort, re
         </span>
         <input
           className="search"
-          placeholder="搜索名称 / #编号 / 已完成 / 飚速…"
+          placeholder="搜索名称 / 编号 / 精准度 / 尝试 / 飚速…"
           value={search}
           onChange={(e) => onSearch(e.target.value)}
         />

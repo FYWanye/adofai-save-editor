@@ -24,7 +24,9 @@ export function LevelItem({ level, selected, onSelect }: Props) {
       </div>
       <div className="level-side">
         <span className={"status-badge " + level.status}>{STATUS_LABEL[level.status]}</span>
-        {level.boost && <span className="boost-badge">🔥 飙速</span>}
+        {level.boost && level.speed != null && (
+          <span className="boost-badge">🔥 飙速 {level.speed}x</span>
+        )}
       </div>
     </div>
   );

@@ -421,6 +421,17 @@ body.is-mac .titlebar {
   font-size: var(--text-title3);
   font-weight: var(--font-weight-semibold);
 }
+.editor-title-wrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.editor-head .subtitle {
+  font-size: var(--text-footnote);
+  color: var(--label-secondary);
+  font-variant-numeric: tabular-nums;
+}
 
 .editor-empty {
   color: var(--label-secondary);
