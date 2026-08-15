@@ -8,11 +8,14 @@ import { LevelEditor } from "./components/LevelEditor";
 import { Toast } from "./components/Toast";
 
 export default function App() {
-  const { data, filePath, toast, cloudNames, show, autoLoad, open, applyLevel, renameLevel, save, saveAs } =
+  const { data, filePath, toast, customNames, cloudNames, show, autoLoad, open, applyLevel, renameLevel, save, saveAs } =
     useSave();
   const [selected, setSelected] = useState<string | null>(null);
 
-  const levels = useMemo(() => (data ? collectLevels(data, cloudNames) : []), [data, cloudNames]);
+  const levels = useMemo(
+    () => (data ? collectLevels(data, customNames, cloudNames) : []),
+    [data, customNames, cloudNames],
+  );
   const selectedLevel = useMemo(
     () => levels.find((l) => l.num === selected) ?? null,
     [levels, selected],

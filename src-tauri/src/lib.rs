@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -136,6 +137,35 @@ fn save_save_as(app: tauri::AppHandle, content: String) -> Option<String> {
     Some(path.to_string_lossy().into_owned())
 }
 
+/// 自定义名称侧车文件路径（与存档同目录）
+fn sidecar_path(save_path: &str) -> PathBuf {
+    match Path::new(save_path).parent() {
+        Some(dir) => dir.join("levelNames.json"),
+        None => PathBuf::from("levelNames.json"),
+    }
+}
+
+/// 读取自定义关卡名称侧车文件（不存在返回 None）
+#[tauri::command]
+fn read_level_names(save_path: String) -> Result<Option<HashMap<String, String>>, String> {
+    let path = sidecar_path(&save_path);
+    if !path.exists() {
+        return Ok(None);
+    }
+    let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+    let names: HashMap<String, String> =
+        serde_json::from_str(strip_bom(&content)).map_err(|e| e.to_string())?;
+    Ok(Some(names))
+}
+
+/// 写入自定义关卡名称侧车文件
+#[tauri::command]
+fn write_level_names(save_path: String, names: HashMap<String, String>) -> Result<(), String> {
+    let path = sidecar_path(&save_path);
+    let content = serde_json::to_string_pretty(&names).map_err(|e| e.to_string())?;
+    fs::write(&path, content).map_err(|e| e.to_string())
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -143,7 +173,9 @@ pub fn run() {
             auto_detect_save,
             open_save_dialog,
             save_save,
-            save_save_as
+            save_save_as,
+            read_level_names,
+            write_level_names
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

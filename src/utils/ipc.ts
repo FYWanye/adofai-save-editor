@@ -20,3 +20,9 @@ export const saveSave = (path: string, content: string) =>
 
 export const saveSaveAs = (content: string) =>
   invoke<string | null>("save_save_as", { content });
+
+export const readLevelNames = (savePath: string) =>
+  invoke<Record<string, string> | null>("read_level_names", { savePath });
+
+export const writeLevelNames = (savePath: string, names: Record<string, string>) =>
+  invoke<void>("write_level_names", { savePath, names });
