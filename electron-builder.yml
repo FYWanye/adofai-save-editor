@@ -11,6 +11,7 @@ files:
 
 directories:
   output: dist
+  buildResources: build
 
 asar: true
 

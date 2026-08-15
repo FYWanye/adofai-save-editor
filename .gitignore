@@ -3,7 +3,10 @@ node_modules/
 
 # ===== Build / package output =====
 dist/
-build/
+build/*
+!build/icon.png
+!build/icon.ico
+!build/icon.icns
 out/
 release/
 *.exe
