@@ -6,10 +6,30 @@ import { StatsGrid } from "./components/StatsGrid";
 import { LevelList } from "./components/LevelList";
 import { LevelEditor } from "./components/LevelEditor";
 import { Toast } from "./components/Toast";
+import { CloudPanel } from "./components/CloudPanel";
 
 export default function App() {
-  const { data, filePath, toast, customNames, cloudNames, show, autoLoad, open, applyLevel, renameLevel, save, saveAs } =
-    useSave();
+  const {
+    data,
+    filePath,
+    toast,
+    customNames,
+    cloudNames,
+    cloudUrl,
+    cloudHasToken,
+    syncing,
+    show,
+    autoLoad,
+    open,
+    applyLevel,
+    renameLevel,
+    save,
+    saveAs,
+    saveCloudToken,
+    pushToCloud,
+    pullCloud,
+    openCloud,
+  } = useSave();
   const [selected, setSelected] = useState<string | null>(null);
 
   const levels = useMemo(
@@ -56,11 +76,24 @@ export default function App() {
                 key={selected ?? "empty"}
                 level={selectedLevel}
                 onApply={applyLevel}
+                onRename={renameLevel}
                 onNotify={(m) => show(m)}
               />
             </div>
           </section>
         )}
+
+        <CloudPanel
+          cloudUrl={cloudUrl}
+          syncing={syncing}
+          cloudCount={Object.keys(cloudNames).length}
+          customNames={customNames}
+          hasToken={cloudHasToken}
+          onPull={pullCloud}
+          onOpen={openCloud}
+          onSaveToken={saveCloudToken}
+          onPushContent={pushToCloud}
+        />
       </main>
 
       {data && (

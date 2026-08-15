@@ -5,6 +5,7 @@ import { ratioToPercent } from "../utils/levels";
 interface Props {
   level: Level | null;
   onApply: (patch: Record<string, unknown>) => void;
+  onRename: (num: string, name: string) => void;
   onNotify: (message: string) => void;
 }
 
@@ -17,7 +18,9 @@ const DEFAULTS = {
   speed: "1.0",
 };
 
-export function LevelEditor({ level, onApply, onNotify }: Props) {
+export function LevelEditor({ level, onApply, onRename, onNotify }: Props) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
   const [progress, setProgress] = useState(level?.progress ?? false);
   const [accuracy, setAccuracy] = useState(
     level && level.accuracy != null ? ratioToPercent(level.accuracy) : DEFAULTS.accuracy,
@@ -42,6 +45,20 @@ export function LevelEditor({ level, onApply, onNotify }: Props) {
       </div>
     );
   }
+
+  const beginEdit = () => {
+    setDraft(level.name);
+    setEditing(true);
+  };
+  const commit = () => {
+    setEditing(false);
+    const trimmed = draft.trim();
+    if (trimmed && trimmed !== level.name) onRename(level.num, trimmed);
+  };
+  const cancel = () => {
+    setEditing(false);
+    setDraft(level.name);
+  };
 
   const apply = () => {
     const n = level.num;
@@ -82,8 +99,24 @@ export function LevelEditor({ level, onApply, onNotify }: Props) {
       <div className="editor-head">
         <span className="badge large">{level.num}</span>
         <div className="editor-title-wrap">
-          <div className="title">{level.name}</div>
-          <div className="subtitle">#{level.num}</div>
+          {editing ? (
+            <input
+              className="rename-input"
+              autoFocus
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onBlur={commit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commit();
+                if (e.key === "Escape") cancel();
+              }}
+            />
+          ) : (
+            <div className="title" onDoubleClick={beginEdit} title="双击重命名">
+              {level.name}
+            </div>
+          )}
+          <div className="subtitle">#{level.num} · 双击名称可重命名</div>
         </div>
       </div>
 

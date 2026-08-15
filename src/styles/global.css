@@ -434,6 +434,7 @@ body.is-mac .titlebar {
 .editor-head .title {
   font-size: var(--text-title3);
   font-weight: var(--font-weight-semibold);
+  cursor: text;
 }
 .editor-title-wrap {
   min-width: 0;
@@ -483,6 +484,141 @@ body.is-mac .titlebar {
 }
 .editor-actions .btn {
   flex: 1;
+}
+
+/* ---- 云同步面板 ---- */
+.cloud-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.cloud-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cloud-head .card-title {
+  margin-bottom: 0;
+}
+.cloud-status {
+  font-size: var(--text-footnote);
+  font-weight: var(--font-weight-semibold);
+  padding: 3px 12px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+.cloud-status.ok {
+  color: var(--system-green);
+  background: color-mix(in srgb, var(--system-green) 16%, transparent);
+}
+.cloud-status.off {
+  color: var(--label-secondary);
+  background: var(--fill-tertiary);
+}
+.cloud-desc {
+  font-size: var(--text-footnote);
+  color: var(--label-secondary);
+  line-height: 1.5;
+}
+.cloud-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+.cloud-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-footnote);
+  color: var(--label-secondary);
+}
+.cloud-field input {
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--separator);
+  background: var(--bg-secondary);
+  color: var(--label-primary);
+  font-family: inherit;
+  font-size: var(--text-subhead);
+  outline: none;
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+.cloud-field input:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-blue) 30%, transparent);
+}
+.cloud-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.cloud-actions .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn.link {
+  background: none;
+  color: var(--system-blue);
+  padding: 6px 10px;
+  min-height: 0;
+  font-size: var(--text-footnote);
+}
+.btn.link:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
+.cloud-help {
+  font-size: var(--text-footnote);
+  color: var(--label-secondary);
+  border-top: 0.5px solid var(--separator);
+  padding-top: var(--space-3);
+}
+.cloud-help summary {
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  color: var(--label-primary);
+}
+.cloud-help ol {
+  margin: var(--space-2) 0 0 var(--space-4);
+  line-height: 1.8;
+}
+.cloud-note {
+  margin-top: var(--space-2);
+  color: var(--label-tertiary, var(--label-secondary));
+  opacity: 0.8;
+}
+.cloud-dev {
+  border-top: 0.5px solid var(--separator);
+  padding-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.cloud-dev summary {
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  color: var(--label-primary);
+  font-size: var(--text-subhead);
+}
+.cloud-dev summary:hover {
+  color: var(--system-blue);
+}
+.cloud-json {
+  width: 100%;
+  resize: vertical;
+  min-height: 160px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--separator);
+  background: var(--bg-secondary);
+  color: var(--label-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-footnote);
+  line-height: 1.6;
+  outline: none;
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+.cloud-json:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--system-blue) 30%, transparent);
 }
 
 /* ---- Toast ---- */

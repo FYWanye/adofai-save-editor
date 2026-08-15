@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import type { GameSave } from "../utils/levels";
-import { fetchCloudNames, submitCloudName } from "../utils/cloudNames";
+import {
+  fetchCloudNames,
+  fetchCloudSettings,
+  fetchCloudUrl,
+  openCloudPage,
+  pushCloudContent,
+  updateCloudSettings,
+} from "../utils/cloudNames";
 import {
   autoDetectSave,
   openSaveDialog,
@@ -17,15 +24,28 @@ export interface ToastState {
   tone: ToastTone;
 }
 
+/** 将 invoke 的 reject 值转成可读信息（Tauri 错误通常是字符串） */
+const errMsg = (e: unknown): string =>
+  typeof e === "string" ? e : e instanceof Error ? e.message : String(e);
+
 export function useSave() {
   const [data, setData] = useState<GameSave | null>(null);
   const [filePath, setFilePath] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [customNames, setCustomNames] = useState<Record<string, string>>({});
   const [cloudNames, setCloudNames] = useState<Record<string, string>>({});
+  const [cloudUrl, setCloudUrl] = useState("");
+  const [cloudHasToken, setCloudHasToken] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
-  // 启动时拉取云名称（服务器未就绪时返回空）
+  // 启动时获取云端地址并自动下载云端名称（失败静默，不打扰用户）
   useEffect(() => {
+    fetchCloudUrl()
+      .then(setCloudUrl)
+      .catch(() => {});
+    fetchCloudSettings()
+      .then((s) => setCloudHasToken(s.hasToken))
+      .catch(() => {});
     fetchCloudNames()
       .then(setCloudNames)
       .catch(() => {});
@@ -47,7 +67,7 @@ export function useSave() {
           .then((names) => setCustomNames(names ?? {}))
           .catch(() => {});
       } catch (e) {
-        show(`解析失败: ${(e as Error).message}`, "error");
+        show(`解析失败: ${errMsg(e)}`, "error");
       }
     },
     [show],
@@ -75,7 +95,7 @@ export function useSave() {
     setData((prev) => (prev ? { ...prev, ...patch } : prev));
   }, []);
 
-  // 重命名关卡：写入侧车文件 + 提交到服务器（框架）
+  // 重命名关卡：仅写入本地侧车文件（云端只读，不自动上传）
   const renameLevel = useCallback(
     (num: string, name: string) => {
       const trimmed = name.trim();
@@ -86,7 +106,6 @@ export function useSave() {
       if (filePath) {
         writeLevelNames(filePath, next).catch(() => {});
       }
-      submitCloudName(num, trimmed).catch(() => {});
     },
     [customNames, filePath],
   );
@@ -110,12 +129,68 @@ export function useSave() {
     if (p) show(`已保存到: ${p}`, "success");
   }, [data, show]);
 
+  // 保存开发者 Token
+  const saveCloudToken = useCallback(
+    async (token: string) => {
+      try {
+        await updateCloudSettings(token);
+        const s = await fetchCloudSettings();
+        setCloudHasToken(s.hasToken);
+        show("Token 已保存", "success");
+      } catch (e) {
+        show(`保存 Token 失败: ${errMsg(e)}`, "error");
+      }
+    },
+    [show],
+  );
+
+  // 推送 JSON 到云端（开发者用）
+  const pushToCloud = useCallback(
+    async (content: string) => {
+      setSyncing(true);
+      try {
+        await pushCloudContent(content);
+        show("已推送到云端", "success");
+      } catch (e) {
+        show(`推送失败: ${errMsg(e)}`, "error");
+      } finally {
+        setSyncing(false);
+      }
+    },
+    [show],
+  );
+
+  // 手动从云端拉取（下载后与本地合并，本地自定义优先）
+  const pullCloud = useCallback(async () => {
+    setSyncing(true);
+    try {
+      const names = await fetchCloudNames();
+      setCloudNames(names);
+      show(`已从云端拉取 ${Object.keys(names).length} 个名称`, "success");
+    } catch (e) {
+      show(`拉取失败: ${errMsg(e)}`, "error");
+    } finally {
+      setSyncing(false);
+    }
+  }, [show]);
+
+  // 在 App 内打开 GitHub 页面
+  const openCloud = useCallback(
+    (url: string) => {
+      openCloudPage(url).catch((e) => show(`打开失败: ${errMsg(e)}`, "error"));
+    },
+    [show],
+  );
+
   return {
     data,
     filePath,
     toast,
     customNames,
     cloudNames,
+    cloudUrl,
+    cloudHasToken,
+    syncing,
     show,
     autoLoad,
     open,
@@ -123,5 +198,9 @@ export function useSave() {
     renameLevel,
     save,
     saveAs,
+    saveCloudToken,
+    pushToCloud,
+    pullCloud,
+    openCloud,
   };
 }

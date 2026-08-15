@@ -1,32 +1,44 @@
 /**
- * 云名称服务框架
- * ===============
- * 用于「提交关卡名称到服务器 / 从服务器拉取关卡名称」。
- * 服务器尚未就绪，当前为空实现；接入时只需：
- *   1. 填写 CLOUD_API_BASE；
- *   2. 按注释实现 fetchCloudNames / submitCloudName 的真实请求。
+ * 云名称服务（基于云端 JSON 文件）
+ * =================================
+ * 云端数据由作者手动维护并上传到 GitHub 仓库（cloud/levelNames.json），
+ * 程序启动时自动下载该 JSON，并与用户本地自定义名称合并。
+ * 显示优先级：本地自定义 > 云端 > 游戏内置 > 回退名，
+ * 因此本地自定义永远不会被云端覆盖。
  */
 
-/** 服务器地址（待接入，留空表示未配置） */
-export const CLOUD_API_BASE = "";
+import {
+  cloudFetch,
+  cloudOpen,
+  cloudPush,
+  getCloudSettings,
+  getCloudUrl,
+  setCloudSettings,
+  setCloudUrl,
+  type CloudSettingsView,
+} from "./ipc";
 
-/** 从服务器拉取关卡云名称（num -> name） */
+export type { CloudSettingsView };
+
+/** 拉取当前云端数据地址 */
+export const fetchCloudUrl = () => getCloudUrl();
+
+/** 保存云端数据地址 */
+export const updateCloudUrl = (url: string) => setCloudUrl(url);
+
+/** 拉取开发者云配置（不含 token） */
+export const fetchCloudSettings = () => getCloudSettings();
+
+/** 保存开发者 Token（留空保留旧值） */
+export const updateCloudSettings = (token: string) => setCloudSettings(token);
+
+/** 从云端下载关卡名称（num -> name） */
 export async function fetchCloudNames(): Promise<Record<string, string>> {
-  if (!CLOUD_API_BASE) return {};
-  // TODO: 接入真实 API，例如：
-  // const res = await fetch(`${CLOUD_API_BASE}/api/level-names`);
-  // if (!res.ok) throw new Error(`拉取云名称失败: ${res.status}`);
-  // return (await res.json()) as Record<string, string>;
-  return {};
+  return await cloudFetch();
 }
 
-/** 提交关卡名称到服务器 */
-export async function submitCloudName(levelNum: string, name: string): Promise<void> {
-  if (!CLOUD_API_BASE) return;
-  // TODO: 接入真实 API，例如：
-  // await fetch(`${CLOUD_API_BASE}/api/level-names`, {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify({ levelNum, name }),
-  // });
-}
+/** 推送 JSON 内容到云端（开发者用） */
+export const pushCloudContent = (content: string) => cloudPush(content);
+
+/** 在 App 内打开指定网页 */
+export const openCloudPage = (url: string) => cloudOpen(url);
