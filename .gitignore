@@ -1,0 +1,37 @@
+# ===== Dependencies =====
+node_modules/
+
+# ===== Build / package output =====
+dist/
+build/
+out/
+release/
+*.exe
+*.dmg
+*.deb
+*.msi
+*.AppImage
+*.apk
+*.aab
+
+# ===== Logs =====
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== OS / Editor =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ===== Env / secrets =====
+.env
+.env.*
+!.env.example
+
+# ===== Third-party reference folder (not project code) =====
+Apple-Hig-Designer-main/

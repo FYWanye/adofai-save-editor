@@ -1,0 +1,18 @@
+{
+  "name": "save-editor",
+  "version": "1.0.0",
+  "description": "游戏存档修改器 - 轻松解锁所有关卡",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["save-editor", "game", "unlocker"],
+  "author": "批发哈密瓜",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^24.19.0",
+    "electron-builder": "^24.0.0"
+  }
+}
