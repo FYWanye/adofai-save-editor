@@ -1,22 +1,29 @@
 {
-  "name": "save-editor",
+  "name": "adofai-save-editor",
+  "private": true,
   "version": "1.0.0",
-  "description": "游戏存档修改器 - 轻松解锁所有关卡",
-  "main": "src/main.js",
+  "type": "module",
   "scripts": {
-    "start": "electron .",
-    "dist": "electron-builder --publish never",
-    "dist:win": "electron-builder --win nsis msi --publish never",
-    "dist:mac": "electron-builder --mac dmg --publish never",
-    "dist:linux": "electron-builder --linux AppImage deb --publish never",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
   },
-  "keywords": ["save-editor", "game", "unlocker"],
-  "author": "批发哈密瓜",
-  "license": "MIT",
-  "type": "commonjs",
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-virtuoso": "^4.12.0"
+  },
   "devDependencies": {
-    "electron": "^43.4.0",
-    "electron-builder": "^26.15.3"
+    "@tauri-apps/cli": "^2.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
   }
 }

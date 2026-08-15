@@ -1,0 +1,136 @@
+export type GameSave = Record<string, unknown>;
+
+export type LevelStatus = "completed" | "in_progress" | "unplayed";
+
+export interface Level {
+  num: string;
+  numInt: number;
+  name: string;
+  progress: boolean;
+  status: LevelStatus;
+  accuracy: number | null;
+  xAccuracy: number | null;
+  attempts: number | null;
+  tutorial: number | null;
+  speed: number | null;
+  boost: boolean;
+}
+
+const numVal = (v: unknown): number | null => (typeof v === "number" ? v : null);
+
+/** 从存档中推导关卡名称，找不到则回退为「关卡 N」（1 起） */
+function levelName(data: GameSave, num: string): string {
+  for (const prefix of ["levelName", "levelTitle", "name"]) {
+    const v = data[prefix + num];
+    if (typeof v === "string" && v.trim()) return v;
+  }
+  const n = parseInt(num, 10);
+  return Number.isFinite(n) ? `关卡 ${n + 1}` : `关卡 ${num}`;
+}
+
+/** 收集所有普通关卡数据 */
+export function collectLevels(data: GameSave): Level[] {
+  const levels: Level[] = [];
+  for (const key of Object.keys(data)) {
+    if (key.startsWith("percentCompletion") && !key.startsWith("coop_")) {
+      const num = key.slice("percentCompletion".length);
+      const progress = data[key] === 1;
+      const attempts = numVal(data["worldAttempts" + num]);
+      const speed = numVal(data["bestSpeedMultiplier" + num]);
+      const status: LevelStatus = progress
+        ? "completed"
+        : attempts != null && attempts > 0
+          ? "in_progress"
+          : "unplayed";
+      levels.push({
+        num,
+        numInt: parseInt(num, 10) || 0,
+        name: levelName(data, num),
+        progress,
+        status,
+        accuracy: numVal(data["bestPercentAccuracy" + num]),
+        xAccuracy: numVal(data["bestPercentXAccuracy" + num]),
+        attempts,
+        tutorial: numVal(data["tutorialProgress" + num]),
+        speed,
+        boost: speed != null,
+      });
+    }
+  }
+  return levels;
+}
+
+/** 比例（1.0 = 100%）转百分比字符串 */
+export const ratioToPercent = (r: number | null): string =>
+  r == null ? "" : (r * 100).toFixed(2);
+
+/** 百分比字符串转比例（保留 4 位小数，与存档精度一致） */
+export const percentToRatio = (p: string): number =>
+  Math.round(parseFloat(p) * 100) / 10000;
+
+/**
+ * 搜索匹配：支持状态关键词、飚速关键词、编号、名称模糊匹配
+ *   - "已完成" / "done" / "completed"   → 已完成
+ *   - "未完成" / "todo"                 → 未完成（含进行中）
+ *   - "进行中" / "progress"             → 进行中
+ *   - "飚速" / "boost" / "🔥" / "⚡"     → 飚速
+ *   - "#123" / "123"                    → 编号
+ *   - 其它                              → 名称/编号模糊匹配
+ */
+export function matchesSearch(level: Level, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+
+  if (["已完成", "完成", "done", "completed"].includes(q)) return level.status === "completed";
+  if (["未完成", "todo", "uncompleted", "unfinished"].includes(q)) return level.status !== "completed";
+  if (["进行中", "进行", "in progress", "progress"].includes(q)) return level.status === "in_progress";
+  if (["飚速", "飙速", "boost", "boosted", "🔥", "⚡", "speed"].includes(q)) return level.boost;
+
+  if (q.startsWith("#")) return level.num === q.slice(1);
+  if (/^\d+$/.test(q)) return level.num === q || level.numInt === parseInt(q, 10);
+
+  return level.name.toLowerCase().includes(q) || level.num.toLowerCase().includes(q);
+}
+
+/** 飚速倍率颜色（备用，低倍率偏蓝、高倍率偏红） */
+export function speedColor(value: number): string {
+  const v = Math.max(0.1, Math.min(value, 3.0));
+  const hue = 210 - ((v - 0.1) / 2.9) * 210;
+  return `hsl(${hue.toFixed(1)}, 85%, 62%)`;
+}
+
+export interface SaveStats {
+  completed: number;
+  total: number;
+  speedCount: number;
+  maxSpeed: number;
+  currentLevel: string;
+}
+
+export function computeStats(data: GameSave): SaveStats {
+  let completed = 0;
+  let total = 0;
+  for (const key of Object.keys(data)) {
+    if (key.startsWith("percentCompletion") && !key.startsWith("coop_")) {
+      total++;
+      if (data[key] === 1) completed++;
+    }
+  }
+  let speedCount = 0;
+  let maxSpeed = 0;
+  for (const key of Object.keys(data)) {
+    if (key.startsWith("bestSpeedMultiplier")) {
+      speedCount++;
+      const v = numVal(data[key]);
+      if (v != null && v > maxSpeed) maxSpeed = v;
+    }
+  }
+  return {
+    completed,
+    total,
+    speedCount,
+    maxSpeed,
+    currentLevel: typeof data.currentLevel === "string" ? data.currentLevel : "N/A",
+  };
+}
+

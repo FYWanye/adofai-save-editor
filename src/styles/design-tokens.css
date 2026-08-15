@@ -1,0 +1,106 @@
+/* ==========================================================================
+   Apple HIG Design Tokens（精简自 Apple-Hig-Designer）
+   亮色为默认，深色通过 <html data-theme="dark"> 切换
+   ========================================================================== */
+:root {
+  /* ---- 字体 ---- */
+  --font-system: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+                 'PingFang SC', 'Helvetica Neue', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
+
+  /* ---- 字号（iOS 阶梯） ---- */
+  --text-caption2: 11px;
+  --text-caption1: 12px;
+  --text-footnote: 13px;
+  --text-subhead: 15px;
+  --text-body: 17px;
+  --text-title3: 20px;
+  --text-title2: 22px;
+  --text-title1: 28px;
+  --text-large-title: 34px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ---- 间距（8pt 网格） ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* ---- 圆角 ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  /* ---- 系统色 ---- */
+  --system-blue: #007aff;
+  --system-green: #34c759;
+  --system-red: #ff3b30;
+  --system-orange: #ff9500;
+  --system-purple: #af52de;
+  --system-gray: #8e8e93;
+  --system-gray5: #e5e5ea;
+  --system-gray6: #f2f2f7;
+
+  /* ---- 语义色 ---- */
+  --label-primary: rgba(0, 0, 0, 0.96);
+  --label-secondary: rgba(60, 60, 67, 0.6);
+  --label-tertiary: rgba(60, 60, 67, 0.3);
+  --bg-primary: #ffffff;
+  --bg-secondary: #f2f2f7;
+  --bg-grouped: #f2f2f7;
+  --fill-secondary: rgba(120, 120, 128, 0.16);
+  --fill-tertiary: rgba(120, 120, 128, 0.12);
+  --separator: rgba(60, 60, 67, 0.29);
+
+  /* ---- 毛玻璃 ---- */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(60, 60, 67, 0.12);
+
+  /* ---- 阴影 ---- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.16);
+
+  /* ---- 动效 ---- */
+  --motion-fast: 120ms;
+  --motion-normal: 220ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-theme='dark'] {
+  --system-blue: #0a84ff;
+  --system-green: #30d158;
+  --system-red: #ff453a;
+  --system-orange: #ff9f0a;
+  --system-purple: #bf5af2;
+  --system-gray: #8e8e93;
+  --system-gray5: #2c2c2e;
+  --system-gray6: #1c1c1e;
+
+  --label-primary: rgba(255, 255, 255, 0.96);
+  --label-secondary: rgba(235, 235, 245, 0.6);
+  --label-tertiary: rgba(235, 235, 245, 0.3);
+  --bg-primary: #1c1c1e;
+  --bg-secondary: #2c2c2e;
+  --bg-grouped: #0e0e10;
+  --fill-secondary: rgba(120, 120, 128, 0.24);
+  --fill-tertiary: rgba(120, 120, 128, 0.18);
+  --separator: rgba(84, 84, 88, 0.6);
+
+  --glass-bg: rgba(44, 44, 46, 0.72);
+  --glass-border: rgba(84, 84, 88, 0.4);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.55);
+}

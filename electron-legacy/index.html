@@ -167,22 +167,6 @@
       box-shadow: 0 4px 14px rgba(255, 107, 107, 0.28);
     }
 
-    .btn-success {
-      background: linear-gradient(135deg, #3ddc84, #2bb5c9);
-      box-shadow: 0 4px 14px rgba(61, 220, 132, 0.25);
-    }
-
-    .btn-warning {
-      background: linear-gradient(135deg, #ffd93d, #ff9f43);
-      color: #3a2d00;
-      box-shadow: 0 4px 14px rgba(255, 217, 61, 0.22);
-    }
-
-    .btn-blue {
-      background: linear-gradient(135deg, #4d96ff, #9b6bff);
-      box-shadow: 0 4px 14px rgba(77, 150, 255, 0.28);
-    }
-
     .btn-ghost {
       background: rgba(255, 255, 255, 0.07);
       border: 1px solid rgba(255, 255, 255, 0.14);
@@ -203,139 +187,6 @@
       box-shadow: 0 4px 16px rgba(77, 150, 255, 0.32);
       font-size: 1em;
       padding: 14px 28px;
-    }
-
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .level-grid,
-    .speed-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-      gap: 10px;
-      max-height: 380px;
-      overflow-y: auto;
-      padding: 4px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-    }
-
-    .level-grid::-webkit-scrollbar,
-    .speed-grid::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .level-grid::-webkit-scrollbar-thumb,
-    .speed-grid::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-    }
-
-    .level-item,
-    .speed-item {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 10px 6px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.18s ease;
-      user-select: none;
-    }
-
-    .speed-item {
-      border-left: 3px solid var(--speed-color, var(--blue));
-    }
-
-    .level-item:hover,
-    .speed-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.22);
-      transform: translateY(-2px);
-    }
-
-    .speed-item:hover {
-      border-left-color: var(--speed-color, var(--blue));
-    }
-
-    .level-item.selected {
-      background: rgba(61, 220, 132, 0.16);
-      border-color: var(--green);
-      box-shadow: 0 0 0 1px rgba(61, 220, 132, 0.4);
-    }
-
-    .speed-item.selected {
-      background: rgba(77, 150, 255, 0.16);
-      border-color: var(--blue);
-      border-left-color: var(--speed-color, var(--blue));
-      box-shadow: 0 0 0 1px rgba(77, 150, 255, 0.4);
-    }
-
-    .level-name,
-    .speed-name {
-      font-weight: 700;
-      font-size: 1.05em;
-      margin-bottom: 4px;
-    }
-
-    .level-status {
-      font-size: 0.75em;
-      color: var(--text-dim);
-    }
-
-    .level-item.completed .level-status {
-      color: var(--green);
-    }
-
-    .speed-value {
-      font-size: 0.85em;
-      color: var(--speed-color, var(--yellow));
-      font-weight: 600;
-    }
-
-    .speed-control {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .speed-control label {
-      color: var(--text-dim);
-      font-size: 0.9em;
-    }
-
-    .speed-control input {
-      width: 90px;
-      padding: 9px 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(0, 0, 0, 0.35);
-      color: var(--text);
-      font-size: 1em;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .speed-control input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(77, 150, 255, 0.2);
-    }
-
-    .speed-control .unit {
-      color: var(--text-dim);
-      font-size: 0.9em;
     }
 
     .stats-grid {
@@ -362,6 +213,216 @@
       font-size: 1.22em;
       font-weight: 700;
       color: var(--green);
+    }
+
+    /* ===== 关卡编辑器：左侧列表 + 右侧编辑面板 ===== */
+    .editor-layout {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .level-list-panel {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .list-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .list-toolbar input,
+    .list-toolbar select {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--text);
+      font-size: 0.9em;
+      outline: none;
+    }
+
+    .list-toolbar input { flex: 1; min-width: 120px; }
+    .list-toolbar select { cursor: pointer; }
+
+    .level-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 2px;
+    }
+
+    .level-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-left: 3px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .level-row:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .level-row.selected {
+      background: rgba(77, 150, 255, 0.14);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 1px rgba(77, 150, 255, 0.4);
+    }
+
+    .level-row.completed .level-badge {
+      background: linear-gradient(135deg, #3ddc84, #2bb5c9);
+    }
+
+    .level-badge {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85em;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .level-badge.large {
+      width: 44px;
+      height: 44px;
+      font-size: 1.05em;
+    }
+
+    .level-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .level-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .level-meta {
+      font-size: 0.78em;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .level-flag {
+      flex-shrink: 0;
+      font-size: 0.95em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .speed-tag {
+      font-size: 0.75em;
+      color: var(--yellow);
+      font-weight: 600;
+      background: rgba(255, 217, 61, 0.12);
+      border: 1px solid rgba(255, 217, 61, 0.3);
+      border-radius: 999px;
+      padding: 2px 8px;
+    }
+
+    .editor-panel {
+      flex: 0 0 300px;
+      position: sticky;
+      top: 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .editor-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .editor-title {
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .editor-empty {
+      color: var(--text-dim);
+      font-size: 0.88em;
+      line-height: 1.6;
+    }
+
+    .editor-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.85em;
+      color: var(--text-dim);
+    }
+
+    .editor-field input[type="number"] {
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--text);
+      font-size: 1em;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .editor-field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(77, 150, 255, 0.2);
+    }
+
+    .editor-field.editor-toggle {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .editor-field.editor-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .editor-actions .btn { flex: 1; }
+
+    @media (max-width: 760px) {
+      .editor-layout { flex-direction: column; }
+      .editor-panel { flex: none; width: 100%; position: static; }
     }
 
     .save-section {
@@ -433,53 +494,37 @@
       <div class="stats-grid" id="statsGrid"></div>
     </section>
 
-    <section class="card" id="actionsSection" style="display: none;">
+    <section class="card" id="levelEditorSection" style="display: none;">
       <div class="card-header">
-        <span class="card-title"><span class="step-badge">3</span>快速修改</span>
-        <span class="card-hint">一键完成常用修改</span>
+        <span class="card-title"><span class="step-badge">3</span>关卡编辑器</span>
+        <span class="card-hint">点击左侧关卡，在右侧编辑进度 / 精准度 / X精准度 / 尝试次数</span>
       </div>
-      <div class="actions-grid">
-        <button class="btn btn-primary" onclick="unlockAll()">🔓 一键全解锁</button>
-        <button class="btn btn-success" onclick="maxTutorial()">📚 教程全完成</button>
-        <button class="btn btn-warning" onclick="maxDLC()">🏆 DLC 全奖牌</button>
-      </div>
-    </section>
-
-    <section class="card" id="levelSelectSection" style="display: none;">
-      <div class="card-header">
-        <span class="card-title"><span class="step-badge">4</span>自定义解锁</span>
-        <span class="card-hint">勾选要解锁的关卡（可多选）</span>
-      </div>
-      <div class="level-grid" id="levelGrid"></div>
-      <div class="card-actions">
-        <button class="btn btn-primary" onclick="unlockSelected()">🔓 解锁选中</button>
-        <button class="btn btn-ghost" onclick="selectAllLevels()">✅ 全选</button>
-        <button class="btn btn-ghost" onclick="deselectAllLevels()">❌ 取消全选</button>
-      </div>
-    </section>
-
-    <section class="card" id="speedTrialSection" style="display: none;">
-      <div class="card-header">
-        <span class="card-title"><span class="step-badge">5</span>飚速模式</span>
-        <span class="card-hint">修改各关卡速度倍率</span>
-      </div>
-      <div class="speed-control">
-        <label for="speedMultiplierInput">目标倍率</label>
-        <input type="number" id="speedMultiplierInput" min="0.1" step="0.1" value="1.5">
-        <span class="unit">x</span>
-        <button class="btn btn-blue" onclick="applySpeedToAll()">🚀 应用到全部</button>
-      </div>
-      <div class="speed-grid" id="speedGrid"></div>
-      <div class="card-actions">
-        <button class="btn btn-primary" onclick="applySpeedToSelected()">⚡ 设置选中</button>
-        <button class="btn btn-ghost" onclick="selectAllSpeedLevels()">✅ 全选</button>
-        <button class="btn btn-ghost" onclick="deselectAllSpeedLevels()">❌ 取消全选</button>
+      <div class="editor-layout">
+        <div class="level-list-panel">
+          <div class="list-toolbar">
+            <input type="text" id="levelSearch" placeholder="🔍 搜索关卡号…" oninput="generateLevelList()">
+            <select id="levelFilter" onchange="generateLevelList()">
+              <option value="all">全部</option>
+              <option value="completed">已完成</option>
+              <option value="uncompleted">未完成</option>
+            </select>
+            <select id="levelSort" onchange="generateLevelList()">
+              <option value="num">按关卡号</option>
+              <option value="accuracy">精准度 ↓</option>
+              <option value="attempts">尝试次数 ↓</option>
+            </select>
+          </div>
+          <div class="level-list" id="levelList"></div>
+        </div>
+        <div class="editor-panel" id="editorPanel">
+          <div class="editor-empty">👈 点击左侧关卡，在此编辑该关卡的属性</div>
+        </div>
       </div>
     </section>
 
     <section class="card save-section" id="saveSection" style="display: none;">
       <div class="card-header">
-        <span class="card-title"><span class="step-badge">6</span>保存修改</span>
+        <span class="card-title"><span class="step-badge">4</span>保存修改</span>
         <span class="card-hint">将修改写入存档</span>
       </div>
       <div class="save-actions">

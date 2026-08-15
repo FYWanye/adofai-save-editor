@@ -154,7 +154,7 @@
    * 平台层与业务层解耦。
    * ======================================================================== */
   function wireSecondaryAction() {
-    var selector = '.level-item, .speed-item';
+    var selector = '.level-row';
     var invoke = function (el) {
       if (typeof global.onSecondaryAction === 'function') {
         global.onSecondaryAction(el);
@@ -177,7 +177,7 @@
    * 启动：在 DOM 就绪后增强静态组件 + 建立委托
    * ======================================================================== */
   function boot() {
-    document.querySelectorAll('.level-grid, .speed-grid, [data-scrollable]')
+    document.querySelectorAll('[data-scrollable]')
       .forEach(function (el) { ScrollBehavior.enhance(el); });
 
     Buttons.enhance(document);

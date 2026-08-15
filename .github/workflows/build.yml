@@ -1,10 +1,9 @@
 name: Build & Release
 
 # Triggers:
-#   - push to main with "[release]" or "[R]" in the commit message -> bump + tag + build + release
+#   - push to main with "[R]" or "[release]" in commit message -> bump + tag + build + release
 #   - push tag v*   -> build + release that exact version
-#   - manual run    -> always build + release, optional bump type input
-# Everyday pushes to main (e.g. GitDoc auto-commits) only sync code, no release.
+#   - manual run    -> always build + release, optional bump type
 on:
   push:
     branches:
@@ -26,7 +25,6 @@ on:
 permissions:
   contents: write
 
-# Force bash on every runner (Windows included) so scripts are portable
 defaults:
   run:
     shell: bash
@@ -64,29 +62,22 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
       - name: Resolve version
         id: resolve
         run: |
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
-            # Manual tag push: use the tag as-is (v1.2.3 -> 1.2.3)
             VERSION="${GITHUB_REF_NAME#v}"
           else
-            # Auto tag: patch bump from latest tag; use [major]/[minor] in
-            # the commit message to override the bump type
             LATEST=$(git describe --tags --abbrev=0 2>/dev/null || sed -nE 's/.*"version": *"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' package.json | head -1)
             LATEST="${LATEST#v}"
             IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST"
             MAJOR=${MAJOR:-0}; MINOR=${MINOR:-0}; PATCH=${PATCH:-0}
-
             BUMP="patch"
             DISPATCH="${{ github.event.inputs.bump }}"
             if [[ -n "$DISPATCH" ]]; then BUMP="$DISPATCH"; fi
-
             MSG=$(git log -1 --pretty=%B)
             if grep -q '\[major\]' <<< "$MSG"; then BUMP="major"; fi
             if grep -q '\[minor\]' <<< "$MSG"; then BUMP="minor"; fi
-
             case "$BUMP" in
               major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
               minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
@@ -105,13 +96,10 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            args: --win nsis msi
             artifact: dist-windows
           - os: macos-latest
-            args: --mac dmg
             artifact: dist-macos
           - os: ubuntu-latest
-            args: --linux AppImage deb
             artifact: dist-linux
 
     runs-on: ${{ matrix.os }}
@@ -126,28 +114,36 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: npm ci
 
-      - name: Set version
-        run: npm version --no-git-tag-version "${{ needs.version.outputs.version }}"
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 
-      - name: Build installers
+      - name: Sync version
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          npm version --no-git-tag-version "$VERSION"
+          sed -i "s/\"version\": \"[0-9][0-9.]*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
+
+      - name: Build with Tauri
+        uses: tauri-apps/tauri-action@v0
         env:
-          # Build unsigned binaries when no code-signing secrets are present
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npx electron-builder ${{ matrix.args }} --publish never
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload artifacts
+      - name: Upload bundles
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: |
-            dist/*.exe
-            dist/*.msi
-            dist/*.dmg
-            dist/*.AppImage
-            dist/*.deb
+            src-tauri/target/release/bundle/**/*.exe
+            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/bundle/**/*.dmg
+            src-tauri/target/release/bundle/**/*.AppImage
+            src-tauri/target/release/bundle/**/*.deb
           if-no-files-found: error
 
   release:
