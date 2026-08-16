@@ -127,7 +127,7 @@ jobs:
         run: |
           VERSION="${{ needs.version.outputs.version }}"
           npm version --no-git-tag-version "$VERSION"
-          node -e 'const fs=require("fs");const p="src-tauri/tauri.conf.json";const o=JSON.parse(fs.readFileSync(p,"utf8"));o.version=process.env.VERSION;fs.writeFileSync(p,JSON.stringify(o,null,2)+"\n");'
+          sed -i "s/\"version\": \"[0-9][0-9.]*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
 
       - name: Build with Tauri
         uses: tauri-apps/tauri-action@v0
@@ -169,7 +169,7 @@ jobs:
         run: |
           VERSION="${{ needs.version.outputs.version }}"
           npm version --no-git-tag-version "$VERSION"
-          node -e 'const fs=require("fs");const p="src-tauri/tauri.conf.json";const o=JSON.parse(fs.readFileSync(p,"utf8"));o.version=process.env.VERSION;fs.writeFileSync(p,JSON.stringify(o,null,2)+"\n");'
+          sed -i "s/\"version\": \"[0-9][0-9.]*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
 
       - name: Install Android Rust targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
@@ -224,11 +224,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${{ needs.version.outputs.version }}"
-          FILES=(artifacts/*)
+          # 只收集普通文件（跳过 deb/appimage 等目录），避免把目录当资产上传
+          mapfile -d '' FILES < <(find artifacts -type f -print0 | sort -z)
           if [[ ${#FILES[@]} -eq 0 ]]; then
             echo "No artifacts found"
             exit 1
           fi
+          echo "Assets to upload:"
+          printf '  %s\n' "${FILES[@]}"
           if gh release view "v$VERSION" >/dev/null 2>&1; then
             echo "Release v$VERSION already exists, skipping"
           else
