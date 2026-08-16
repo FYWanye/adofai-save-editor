@@ -140,8 +140,7 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: |
-            src-tauri/target/release/bundle/**/*.exe
-            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/*.exe
             src-tauri/target/release/bundle/**/*.dmg
             src-tauri/target/release/bundle/**/*.AppImage
             src-tauri/target/release/bundle/**/*.deb
