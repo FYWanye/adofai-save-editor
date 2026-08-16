@@ -127,7 +127,7 @@ jobs:
         run: |
           VERSION="${{ needs.version.outputs.version }}"
           npm version --no-git-tag-version "$VERSION"
-          sed -i "s/\"version\": \"[0-9][0-9.]*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
+          node -e 'const fs=require("fs"); const p="src-tauri/tauri.conf.json"; let s=fs.readFileSync(p,"utf8"); s=s.replace(/"version":\s*"[0-9][0-9\.]*"/, "\"version\": \""+process.env.VERSION+"\""); fs.writeFileSync(p,s);'
 
       - name: Build with Tauri
         uses: tauri-apps/tauri-action@v0
@@ -169,7 +169,7 @@ jobs:
         run: |
           VERSION="${{ needs.version.outputs.version }}"
           npm version --no-git-tag-version "$VERSION"
-          sed -i "s/\"version\": \"[0-9][0-9.]*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
+          node -e 'const fs=require("fs"); const p="src-tauri/tauri.conf.json"; let s=fs.readFileSync(p,"utf8"); s=s.replace(/"version":\s*"[0-9][0-9\.]*"/, "\"version\": \""+process.env.VERSION+"\""); fs.writeFileSync(p,s);'
 
       - name: Install Android Rust targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
